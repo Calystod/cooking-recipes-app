@@ -33,22 +33,28 @@ def login_post():
     flash('Logged in successfully.')
     return redirect(url_for('user.profile'))
 
-@auth_bp.route('/signup')
-def signup():
-    return render_template('auth/signup.html')
+@auth_bp.route('/add_user')
+@login_required
+def add_user():
+    return render_template('auth/add_user.html')
 
-@auth_bp.route('/signup', methods=['POST'])
-def signup_post():
+@auth_bp.route('/add_user', methods=['POST'])
+@login_required
+def add_user_post():
     email = request.form.get('email')
     name = request.form.get('name')
     password = request.form.get('password')
 
+    if not email or not name or not password:
+        flash('Some datas are missing')
+        return redirect(url_for('auth.add_user'))
+
     user = User.query.filter_by(
         email=email).first()  # if this returns a user, then the email already exists in database
 
-    if user:  # if a user is found, we want to redirect back to signup page so user can try again
+    if user:  # if a user is found, we want to redirect back to add_user page so user can try again
         flash('Email address already exists')
-        return redirect(url_for('auth.signup'))
+        return redirect(url_for('auth.add_user'))
 
     # create new user with the form data. Hash the password so plaintext version isn't saved.
     new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
@@ -57,7 +63,48 @@ def signup_post():
     db.session.add(new_user)
     db.session.commit()
 
-    return redirect(url_for('auth.login'))
+    flash('New user ' + name + ' add.')
+    return redirect(url_for('auth.add_user'))
+
+
+@auth_bp.route('/edit_user/<id>')
+@login_required
+def edit_user(id):
+    user = User.query.filter_by(
+        id=id).first()
+
+    if not user:  # if a user is found, we want to redirect back to add_user page so user can try again
+        flash('This user does\'t exist.')
+        return redirect(url_for('user.index'))
+
+    return render_template('auth/edit_user.html', user=user)
+
+@auth_bp.route('/edit_user/<id>', methods=['POST'])
+@login_required
+def edit_user_post(id):
+    email = request.form.get('email')
+    name = request.form.get('name')
+    password = request.form.get('password')
+
+    user = User.query.filter_by(
+        id=id).first()  # if this returns a user, then the email already exists in database
+
+    if not user:  # if a user is found, we want to redirect back to add_user page so user can try again
+        flash('This user does\'t exist.')
+        return redirect(url_for('user.index'))
+
+    if name:
+        user.name = name
+    if password:
+        user.password = generate_password_hash(password, method='sha256')
+    if email:
+        user.email = email
+
+    # edit user to the database
+    db.session.commit()
+
+    flash('User ' + name + ' edit.')
+    return redirect(url_for('user.index'))
 
 @auth_bp.route('/logout')
 @login_required
