@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from flask_debugtoolbar import DebugToolbarExtension
 import os
 
@@ -15,10 +16,13 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLITE_URL']
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = os.environ['DEBUG_TB_INTERCEPT_REDIRECTS'] == "True"
 
     toolbar = DebugToolbarExtension(app)
 
     db.init_app(app)
+
+    migrate = Migrate(app, db)
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
