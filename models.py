@@ -6,3 +6,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
+
+class Recipe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(250))
+    name = db.Column(db.String(250))
+    picture = db.Column(db.String(250))
+    description = db.Column(db.Text())

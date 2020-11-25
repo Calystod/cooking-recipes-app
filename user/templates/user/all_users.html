@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p class="subtitle">You have {{ users|length }} users in the system</p>
+<table class="table is-striped is-fullwidth">
+    <thead>
+  <tr>
+ <th scope="col">Name</th>
+ <th scope="col">Email</th>
+ <th scope="col"></th>
+</tr>
+  </thead>
+  {% for user in users: %}
+    <tr>
+ <td>{{ user.name }}</td>
+ <td>{{ user.email }}</td>
+
+      <td><a href="/user/{{ user.id }}/edit">Edit</a><br/><a href="/user/{{ user.id }}/delete">Delete</a></td>
+</tr>
+  {% endfor %}
+</table>
+{% endblock %}

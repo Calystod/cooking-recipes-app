@@ -1,0 +1,18 @@
+<!-- templates/add_user.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Delete user</h3>
+    <div class="box">
+        <div class="block">
+            <h4>{{ user.name }}</h4>
+            <p>{{ user.email }}</P>
+</div>
+        <form method="POST" action="/user/{{ user.id }}/delete" >
+            <button class="button is-block is-info is-large is-fullwidth">Delete user</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

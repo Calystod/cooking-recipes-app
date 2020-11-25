@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title">Add user</h3>
+    <h3 class="title">Edit user</h3>
     <div class="box">
-        <form method="POST" action="/edit_user/{{ user.id }}" >
+        <form method="POST" action="/user/{{ user.id }}/edit" >
             <div class="field">
                 <div class="control">
                     <input class="input is-large" type="email" name="email" value={{ user.email }} autofocus="">
@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <button class="button is-block is-info is-large is-fullwidth">Add user</button>
+            <button class="button is-block is-info is-large is-fullwidth">Save user</button>
         </form>
     </div>
 </div>
