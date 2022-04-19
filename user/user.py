@@ -1,8 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
-from models import User
+from database import helper
 from werkzeug.security import generate_password_hash
-from main import db
 
 user_bp = Blueprint('user', __name__, template_folder='templates')
 
@@ -20,14 +19,13 @@ def profile():
 @user_bp.route('/users')
 @login_required
 def all_users():
-    users = User.query.all()  # if this returns a user, then the email already exists in database
-    return render_template('user/all_users.html', users=users)
+    users = helper.get_multi('users', {})  # if this returns a user, then the email already exists in database
+    return render_template('user/all_users.html', users=list(users))
 
 @user_bp.route('/user/<id>/edit')
 @login_required
 def edit_user(id):
-    user = User.query.filter_by(
-        id=id).first()
+    user = helper.get('users', {'email': id})
 
     if not user:  # if a user is found, we want to redirect back to add_user page so user can try again
         flash('This user does\'t exist.')
@@ -39,27 +37,22 @@ def edit_user(id):
 @login_required
 def edit_user_put(id):
     email = request.form.get('email')
-    name = request.form.get('name')
-    password = request.form.get('password')
 
-    user = User.query.filter_by(
-        id=id).first()  # if this returns a user, then the email already exists in database
+    new_user = {'_id': id,
+                'email': email,
+                'name': request.form.get('name'),
+                'password': generate_password_hash(request.form.get('password'), method='sha256')
+                }
+    user = helper.get('users', {'_id': id})
 
+    # if this returns a user, then the email already exists in database
     if not user:  # if a user is found, we want to redirect back to add_user page so user can try again
         flash('This user does\'t exist.')
         return redirect(url_for('user.index'))
 
-    if name:
-        user.name = name
-    if password:
-        user.password = generate_password_hash(password, method='sha256')
-    if email:
-        user.email = email
+    user_id = helper.add('users', new_user)
 
-    # edit user to the database
-    db.session.commit()
-
-    flash('User ' + name + ' edit.')
+    flash('User ' + user.name + ' edit.')
     return redirect(url_for('user.index'))
 
 @user_bp.route('/user')
@@ -78,42 +71,39 @@ def add_user_post():
         flash('Some datas are missing')
         return redirect(url_for('user.add_user'))
 
-    user = User.query.filter_by(
-        email=email).first()  # if this returns a user, then the email already exists in database
+    user = helper.get('users', {'email': email})
 
     if user:  # if a user is found, we want to redirect back to add_user page so user can try again
         flash('Email address already exists')
         return redirect(url_for('user.add_user'))
 
-    # create new user with the form data. Hash the password so plaintext version isn't saved.
-    new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
+    new_user = {'email': email,
+                'name': name,
+                'password': generate_password_hash(password, method='sha256')
+                }
+
+    print(new_user)
 
     # add the new user to the database
-    db.session.add(new_user)
-    db.session.commit()
+    helper.add('users', new_user)
 
     flash('New user ' + name + ' add.')
     return redirect(url_for('user.add_user'))
 
 @user_bp.route('/user/<id>/delete')
 @login_required
-def delete_user(id):
-    user = User.query.filter_by(
-        id=id).first()
+def delete_user(email):
+    user = helper.get('users', {'email': email})
 
     if not user:  # if a user is found, we want to redirect back to add_user page so user can try again
         flash('This user does\'t exist.')
         return redirect(url_for('user.index'))
     return render_template('user/delete_user.html', user=user)
 
+
 @user_bp.route('/user/<id>/delete', methods=['POST'])
 @login_required
-def delete_user_post(id):
-    user = User.query.filter_by(
-        id=id).first()
+def delete_user_post(email):
+    helper.delete('users', {'email': email})
 
-    User.query.filter_by(id=id).delete()
-    db.session.commit()
-
-    flash('User delete.')
     return redirect(url_for('user.all_users'))
