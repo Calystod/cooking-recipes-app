@@ -13,8 +13,7 @@ A list of technologies used within the project:
 ## Installation
 ***
 For the first installation, you need to install:
-* [Direnv](https://direnv.net/)
-* [Virtualenv](https://virtualenv.pypa.io/en/latest/)
+* [Pipenv](https://pipenv.pypa.io/en/latest/)
 
 Add a file .envrc with the environment variable:
 ```
@@ -32,17 +31,19 @@ DB_SERVER=@DB_SERVER@
 DB_USER=@DB_USER@
 ```
 
+To install the environment and create the super admin user for the app.
 ```
-$ direnv allow .
-$ virtualenv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
-$ py scripts/install.py
+$ pipenv install
+$ pipenv run python3 scripts/install.py
 #$ python
 #$ >> from main import db, create_app
 #$ >> db.create_all(app=create_app())
 #$ >> exit()
-$ python -m flask run
+```
+
+To launch the application:
+```
+$ pipenv run python3 -m flask run
 ```
 
 Go on http://127.0.0.1:5000/
