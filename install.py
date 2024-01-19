@@ -4,7 +4,7 @@ import os
 
 new_user = {'email': os.environ['EMAIL_ADMIN'],
             'name': os.environ['NAME_ADMIN'],
-            'password': generate_password_hash(os.environ['PASSWORD_ADMIN'], method='sha256')
+            'password': generate_password_hash(os.environ['PASSWORD_ADMIN'])
             }
 
 print(new_user)

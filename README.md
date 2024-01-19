@@ -34,7 +34,7 @@ DB_USER=@DB_USER@
 To install the environment and create the super admin user for the app.
 ```
 $ pipenv install
-$ pipenv run python3 scripts/install.py
+$ pipenv run python3 install.py
 #$ python
 #$ >> from main import db, create_app
 #$ >> db.create_all(app=create_app())
